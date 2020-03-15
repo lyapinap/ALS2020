@@ -1,0 +1,220 @@
+\textbf{Input: }точка $\beta_{0}$, матрица коэффициентов $C$, количество
+элементов последовательности главных миноров $Det\,porjadok$
+
+\textbf{Output: }итоговый вектор с главными минорами $Determ\,massive\,new$
+
+\textbf{begin}
+
+Проверка матрицы на \textquotedbl ширину ленты\textquotedbl{} (у
+итоговой теплицевой матрицы должна быть одна наддиагональ или одна
+поддиагональ)
+
+\textbf{if} beta0(1)\textasciitilde =1 \textbf{then} a=0 \textbf{else}
+a=1 \textbf{endif}
+
+\textbf{if }beta0(2)\textasciitilde =1 \textbf{then} b=0 \textbf{else}
+b=1 \textbf{endif}
+
+\textbf{if} beta0(1)==1 \& beta0(2)==1 \textbf{then} a=0; b=0 \textbf{endif}
+
+\textbf{while }or(a,b)==0 \textbf{do}
+
+disp('Ошибка ввода начальной точки, одна из координат должна быть
+равна 1')
+
+beta0=input('Введите начальную точку для поиска в формате \textless{[}\_\_,\_\_{]}\textgreater{}
+\textbackslash nbeta0=');
+
+\textbf{if} beta0(1)\textasciitilde =1 \textbf{then} a=0 \textbf{else}
+a=1
+
+\textbf{if }beta0(2)\textasciitilde =1 \textbf{then} b=0 \textbf{else}
+b=1
+
+\textbf{if} beta0(1)==1 \& beta0(2)==1 \textbf{then} a=0; b=0
+
+\textbf{endwhile}
+
+\medskip{}
+
+Переход из декартовой системы координат в матричную систему координат
+
+beta1={[}(size(c,1)-beta0(2)),(beta0(1)+1){]}
+
+\medskip{}
+
+$p$ -- размерность матрицы коэффициентов
+
+$a$ -- вектор диагонали матрицы коэффициентов $С$
+
+$e$ -- номер строки, где расположен элемент матрицы коэффициентов
+$C$, относительно которого определяется количество поддиагоналей
+или наддиагоналей
+
+\medskip{}
+
+Построение теплицевой матрицы
+
+colomn\_c=zeros(p,1);
+
+col=1;
+
+while e\textgreater =1 do
+
+colomn\_c(col)=a(e);
+
+col=col+1;
+
+e=e-1;
+
+endwhile
+
+colomn\_c;
+
+row\_c=zeros(1,p);
+
+e=beta1(1);
+
+r=1;
+
+for m=beta1(1) to length(a) do
+
+row\_c(r)=a(e);
+
+r=r+1;
+
+e=e+1;
+
+endfor
+
+row\_c;
+
+neizv\_1=toeplitz(colomn\_c, row\_c) -- общая теплицева матрица
+
+\medskip{}
+
+ВЫЧИСЛЕНИЕ ГЛАВНЫХ МИНОРОВ ОБЩЕЙ ТЕПЛИЦЕВОЙ МАТРИЦЫ
+
+Формирование рабочей матрицы для вычисления миноров
+
+Determ\_massive=zeros(p,p,p);
+
+k=1;
+
+while k\textless =p do
+
+for i=1 to k do
+
+for j=1 to k do
+
+Determ\_massive(i,j,k)=neizv\_1(i,j);
+
+endfor
+
+endfor
+
+k=k+1;
+
+endwhile
+
+Determ\_massive -- рабочая матрица для вычисления миноров
+
+Determ\_massive\_new=zeros(Det\_porjadok,1) -- вектор, в который
+будут записываться все вычисленные главные миноры общей теплицевой
+матрицы
+
+Determ\_massive\_new\_0=Determ\_massive(1,1,1){*}det(Determ\_massive((1:k-2),
+(1:k-2), k-1));
+
+Determ\_massive\_new(p-1)=Determ\_massive\_new\_0;
+
+\medskip{}
+
+Вычисление миноров в зависимости от количества над- и поддиагоналей
+общей теплицевой матрицы
+
+if beta0(2)==1
+
+\medskip{}
+
+1. Вычисление миноров в случае, если общая теплицева матрица имеет
+одну наддиагональ
+
+Determ\_matrix\_initial=zeros(length(find(colomn\_c\textasciitilde =0)),1)
+-- вектор для хранения миноров общей теплицевой матрицы
+
+Determ\_coefficient\_initial=zeros(length(find(colomn\_c\textasciitilde =0)),1)
+-- вектор для хранения коэффициентов общей теплицевой матрицы
+
+Determ\_matrix\_initial(p-1)=det(Determ\_massive((1:k-2),(1:k-2),k-1));
+
+Determ\_coefficient\_initial(p-1)=Determ\_massive(1,1,1) ;
+
+for v=1 to (length(find(colomn\_c\textasciitilde =0))-1) do
+
+Determ\_matrix\_initial(p-v-1)=det(Determ\_massive((1:(k-1-v-1)),
+(1:(k-1-v-1)), k-1));
+
+Determ\_coefficient\_initial(p-v-1)=(-1)\textasciicircum (v){*}row\_c(2)\textasciicircum (v){*}colomn\_c(v+1);
+
+Determ\_massive\_new(p-v-1)=Determ\_matrix\_initial(p-v-1).{*} Determ\_coefficient\_initial(p-v-1);
+
+endfor
+
+Determ\_massive\_new(p)=sum(Determ\_matrix\_initial.{*}Determ\_coefficient\_initial);
+
+if Det\_porjadok\textgreater p then
+
+for sdvig=1 to (Det\_porjadok-p) do
+
+Determ\_massive\_new(p+sdvig)=sum(Determ\_massive\_new((sdvig+1):(length(find(colomn\_c\textasciitilde =0))+sdvig)).{*}Determ\_coefficient\_initial);
+
+endfor
+
+Determ\_massive\_new -- итоговый вектор с главными минорами
+
+else
+
+\medskip{}
+
+Вычисление миноров в случае, если общая Теплицева матрица имеет одну
+поддиагональ
+
+Determ\_matrix\_initial=zeros(length(find(row\_c\textasciitilde =0)),1)
+-- вектор для хранения миноров общей теплицевой матрицы
+
+Determ\_coefficient\_initial=zeros(length(find(row\_c\textasciitilde =0)),1)
+-- вектор для хранения коэффициентов общей теплицевой матрицы
+
+Determ\_matrix\_initial(p-1)=det(Determ\_massive((1:k-2),(1:k-2),k-1));
+
+Determ\_coefficient\_initial(p-1)=Determ\_massive(1,1,1) ;
+
+\textbf{for} v=1 to (length(find(row\_c\textasciitilde =0))-1) \textbf{do}
+
+Determ\_matrix\_initial(p-v-1)=det(Determ\_massive((1:(k-1-v-1)),(1:(k-1-v-1)),
+k-1));
+
+Determ\_coefficient\_initial(p-v-1)=(-1)\textasciicircum (v){*}colomn\_c(2)\textasciicircum (v){*}row\_c(v+1);
+
+Determ\_massive\_new(p-v-1)=Determ\_matrix\_initial(p-v-1).{*} Determ\_coefficient\_initial(p-v-1);
+
+\textbf{endfor}
+
+Determ\_massive\_new(p)=sum(Determ\_matrix\_initial.{*}Determ\_coefficient\_initial);
+
+\textbf{if} Det\_porjadok\textgreater p \textbf{then}
+
+\textbf{for} sdvig=1 to (Det\_porjadok-p) \textbf{do}
+
+Determ\_massive\_new(p+sdvig)=sum(Determ\_massive\_new((sdvig+1):
+(length(find(row\_c\textasciitilde =0))+sdvig)).{*}Determ\_coefficient\_initial);
+
+\textbf{endfor }
+
+\textbf{endif}
+
+Determ\_massive\_new -- итоговый вектор с главными минорами
+
+\textbf{end}
+\smallskip
